@@ -36,6 +36,7 @@ class ProfileFragment : Fragment() {
                 LoginViewModel.AuthenticationState.Unauthenticated -> {
                     navController.navigate(R.id.loginFragment)
                 }
+                else -> {}
             }
         })
     }

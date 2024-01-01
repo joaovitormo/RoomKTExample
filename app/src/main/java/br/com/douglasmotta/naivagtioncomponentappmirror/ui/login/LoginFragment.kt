@@ -60,6 +60,7 @@ class LoginFragment : Fragment() {
                         validationFields[fieldError.first]?.error = getString(fieldError.second)
                     }
                 }
+                else -> {}
             }
         })
     }

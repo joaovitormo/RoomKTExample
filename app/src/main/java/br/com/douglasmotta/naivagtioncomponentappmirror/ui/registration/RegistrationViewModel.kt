@@ -1,23 +1,21 @@
 package br.com.douglasmotta.naivagtioncomponentappmirror.ui.registration
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import br.com.douglasmotta.naivagtioncomponentappmirror.R
+import br.com.douglasmotta.naivagtioncomponentappmirror.data.repository.UserRepository
+import kotlinx.coroutines.launch
 
-class RegistrationViewModel : ViewModel() {
+class RegistrationViewModel(
+    private val userRepository: UserRepository
+) : ViewModel() {
 
-    sealed class RegistrationState {
-        object CollectProfileData :  RegistrationState()
-        object CollectCredentials : RegistrationState()
-        object RegistrationCompleted : RegistrationState()
-        class InvalidProfileData(val fields: List<Pair<String, Int>>) : RegistrationState()
-        class InvalidCredentials(val fields: List<Pair<String, Int>>) : RegistrationState()
-    }
+
 
     private val _registrationStateEvent = MutableLiveData<RegistrationState>(RegistrationState.CollectProfileData)
     val registrationStateEvent: LiveData<RegistrationState>
         get() = _registrationStateEvent
+
+    private val registrstionViewParams = RegistrationViewParams()
 
     var authToken = ""
         private set
@@ -49,10 +47,15 @@ class RegistrationViewModel : ViewModel() {
 
     fun createCredentials(username: String, password: String) {
         if (isValidCredentials(username, password)) {
-            // ... create account
-            // ... authenticate
-            this.authToken = "token"
-            _registrationStateEvent.value = RegistrationState.RegistrationCompleted
+            viewModelScope.launch {
+                registrstionViewParams.username = username
+                registrstionViewParams.password = password
+
+                userRepository.createUser(registrstionViewParams)
+                this@RegistrationViewModel.authToken = "token"
+                _registrationStateEvent.value = RegistrationState.RegistrationCompleted
+            }
+
         }
     }
 
@@ -78,6 +81,23 @@ class RegistrationViewModel : ViewModel() {
         authToken = ""
         _registrationStateEvent.value = RegistrationState.CollectProfileData
         return true
+
+
+    }
+
+    sealed class RegistrationState {
+        object CollectProfileData :  RegistrationState()
+        object CollectCredentials : RegistrationState()
+        object RegistrationCompleted : RegistrationState()
+        class InvalidProfileData(val fields: List<Pair<String, Int>>) : RegistrationState()
+        class InvalidCredentials(val fields: List<Pair<String, Int>>) : RegistrationState()
+    }
+
+    class RegistrationViewModelFactory(private val userRepository: UserRepository) : ViewModelProvider.Factory {
+        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            return RegistrationViewModel(userRepository) as T
+        }
+
     }
 
     companion object {

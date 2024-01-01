@@ -10,7 +10,7 @@ import br.com.douglasmotta.naivagtioncomponentappmirror.data.db.UserEntity
 interface UserDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun save(user:UserEntity)
+    suspend fun save(user:UserEntity)
 
     @Query("SELECT * FROM user WHERE ID = :id")
     fun getUser(id: Long) : UserEntity

@@ -71,6 +71,7 @@ class ChooseCredentialsFragment : Fragment() {
                         validationFields[fieldError.first]?.error = getString(fieldError.second)
                     }
                 }
+                else -> {}
             }
         })
     }

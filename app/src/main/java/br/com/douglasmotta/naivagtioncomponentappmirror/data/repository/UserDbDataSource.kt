@@ -9,7 +9,7 @@ import br.com.douglasmotta.naivagtioncomponentappmirror.ui.registration.Registra
 class UserDbDataSource(
     private val userDao: UserDao
 ) : UserRepository{
-    override fun createUser(registrationViewParams: RegistrationViewParams) {
+    override suspend fun createUser(registrationViewParams: RegistrationViewParams) {
         val userEntity = registrationViewParams.toUserEntity()
         userDao.save(userEntity)
     }

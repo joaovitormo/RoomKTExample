@@ -13,6 +13,8 @@ import androidx.lifecycle.Observer
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import br.com.douglasmotta.naivagtioncomponentappmirror.R
+import br.com.douglasmotta.naivagtioncomponentappmirror.data.db.AppDatabase
+import br.com.douglasmotta.naivagtioncomponentappmirror.data.repository.UserDbDataSource
 import br.com.douglasmotta.naivagtioncomponentappmirror.extensions.dismissError
 import br.com.douglasmotta.naivagtioncomponentappmirror.extensions.navigateWithAnimations
 import br.com.douglasmotta.naivagtioncomponentappmirror.ui.registration.RegistrationViewModel
@@ -21,7 +23,14 @@ import kotlinx.android.synthetic.main.fragment_profile_data.*
 
 class ProfileDataFragment : Fragment() {
 
-    private val registrationViewModel: RegistrationViewModel by activityViewModels()
+    private val registrationViewModel: RegistrationViewModel by activityViewModels(
+        factoryProducer = {
+            val database = AppDatabase.getDatabase(requireContext())
+            RegistrationViewModel.RegistrationViewModelFactory(
+                userRepository = UserDbDataSource(database.userDao())
+            )
+        }
+    )
 
     private val navController: NavController by lazy {
         findNavController()
@@ -64,6 +73,7 @@ class ProfileDataFragment : Fragment() {
                         validationFields[fieldError.first]?.error = getString(fieldError.second)
                     }
                 }
+                else -> {}
             }
         })
     }
